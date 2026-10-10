@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CLASS CHAMPION EDU</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1A237E;
+            --secondary: #FFC107;
+            --accent: #FF5252;
+            --bg: #E8EAF6;
+            --text: #333;
+            --white: #FFF;
+            --success: #4CAF50;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+        body { background-color: var(--bg); color: var(--text); overflow-x: hidden; }
+        
+        /* Header */
+        header { background: linear-gradient(135deg, var(--primary), #3F51B5); color: var(--white); padding: 1rem; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        header h1 { font-weight: 800; letter-spacing: 2px; text-shadow: 2px 2px 0px rgba(0,0,0,0.3); color: var(--secondary); }
+        
+        /* Layout & Screens */
+        .container { max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        .screen { display: none; animation: fadeIn 0.5s ease-in-out; }
+        .screen.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Card 3D Effect */
+        .card { background: var(--white); border-radius: 15px; padding: 2rem; box-shadow: 0 8px 0px #C5CAE9, 0 10px 20px rgba(0,0,0,0.1); border: 2px solid #C5CAE9; margin-bottom: 2rem; }
+        
+        /* Forms & Inputs */
+        .form-group { margin-bottom: 1.5rem; }
+        label { display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--primary); }
+        select, input, textarea { width: 100%; padding: 0.8rem; border: 2px solid #C5CAE9; border-radius: 8px; font-size: 1rem; transition: 0.3s; }
+        select:focus, input:focus, textarea:focus { border-color: var(--primary); outline: none; }
+        
+        /* Buttons 3D */
+        .btn { display: inline-block; padding: 1rem 2rem; border: none; border-radius: 50px; font-weight: 800; font-size: 1.1rem; cursor: pointer; text-transform: uppercase; transition: all 0.2s; box-shadow: 0 6px 0px rgba(0,0,0,0.2); }
+        .btn:active { transform: translateY(6px); box-shadow: 0 0px 0px rgba(0,0,0,0.2); }
+        .btn-primary { background-color: var(--secondary); color: var(--primary); }
+        .btn-secondary { background-color: var(--primary); color: var(--white); }
+        .btn-danger { background-color: var(--accent); color: var(--white); }
+        .btn-success { background-color: var(--success); color: var(--white); }
+        .btn-group { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem; }
+
+        /* Preview Editor */
+        .q-preview { border: 2px dashed #C5CAE9; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; background: #FAFAFA; }
+        .q-preview input { margin-bottom: 0.5rem; }
+        .q-preview select { margin-top: 0.5rem; background: #e8f5e9; font-weight: bold; }
+
+        /* Game UI */
+        .game-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; font-weight: 600; }
+        .timer-bar { height: 10px; background: #ddd; border-radius: 5px; overflow: hidden; margin-bottom: 2rem; }
+        .timer-fill { height: 100%; background: var(--accent); width: 100%; transition: width 1s linear; }
+        .question-text { font-size: 1.5rem; font-weight: 800; color: var(--primary); margin-bottom: 1.5rem; text-align: center; }
+        
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        @media(max-width: 600px) { .options-grid { grid-template-columns: 1fr; } }
+        
+        .option-btn { background: var(--white); border: 3px solid var(--primary); padding: 1.5rem; border-radius: 12px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 0px var(--primary); text-align: left; }
+        .option-btn:active:not(.disabled) { transform: translateY(4px); box-shadow: 0 0px 0px var(--primary); }
+        .option-btn.correct { background: var(--success); color: white; border-color: #388E3C; box-shadow: 0 4px 0px #388E3C; }
+        .option-btn.wrong { background: var(--accent); color: white; border-color: #D32F2F; box-shadow: 0 4px 0px #D32F2F; }
+        .option-btn.disabled { pointer-events: none; opacity: 0.8; }
+
+        /* Feedback Modal */
+        #feedback-modal { display: none; background: rgba(0,0,0,0.8); position: fixed; top: 0; left: 0; width: 100%; height: 100%; justify-content: center; align-items: center; z-index: 100; }
+        .feedback-content { background: white; padding: 2rem; border-radius: 15px; text-align: center; max-width: 500px; width: 90%; }
+        
+        /* Leaderboard */
+        .leaderboard-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        .leaderboard-table th, .leaderboard-table td { padding: 1rem; text-align: left; border-bottom: 2px solid #eee; }
+        .leaderboard-table th { background: var(--primary); color: white; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🏆 CLASS CHAMPION EDU</h1>
+        <p>Platform Kompetisi Akademik Interaktif</p>
+    </header>
+
+    <div class="container">
+        
+        <!-- SCREEN 1: PENGATURAN GURU -->
+        <div id="screen-setup" class="screen active">
+            <div class="card">
+                <h2 style="color: var(--primary); margin-bottom: 1.5rem;">⚙️ Pengaturan Guru & Materi</h2>
+                
+                <div class="form-group">
+                    <label>Jenjang Pendidikan</label>
+                    <select id="setting-jenjang">
+                        <option value="SD">SD</option>
+                        <option value="SMP">SMP</option>
+                        <option value="SMA">SMA/SMK</option>
+                        <option value="PT">Perguruan Tinggi</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Pilih Mode Kompetisi</label>
+                    <select id="setting-mode">
+                        <option value="individu">Individu</option>
+                        <option value="tim">Tim / Kelompok</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Nama Pemain / Tim</label>
+                    <input type="text" id="setting-player" placeholder="Masukkan nama..." value="Pemain 1">
+                </div>
+
+                <div class="form-group">
+                    <label>Materi Pembelajaran (Paste Teks)</label>
+                    <textarea id="setting-materi" rows="6" placeholder="Masukkan materi bahan ajar di sini..."></textarea>
+                    <small style="color: #666; display: block; margin-top: 0.5rem;">*Atau gunakan materi uji terkalibrasi:</small>
+                    <div class="btn-group" style="margin-top: 0.5rem;">
+                        <button class="btn btn-secondary" style="padding: 0.5rem; font-size: 0.9rem;" onclick="loadDemoMateri(1)">Materi: Tata Surya</button>
+                        <button class="btn btn-secondary" style="padding: 0.5rem; font-size: 0.9rem;" onclick="loadDemoMateri(2)">Materi: Fotosintesis</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Unggah File (Hanya TXT didukung tanpa server)</label>
+                    <input type="file" id="file-upload" accept=".txt">
+                </div>
+
+                <button class="btn btn-primary" style="width: 100%;" onclick="generateQuestions()">Proses & Bentuk Soal 🚀</button>
+            </div>
+        </div>
+
+        <!-- SCREEN 2: KONFIRMASI GURU -->
+        <div id="screen-preview" class="screen">
+            <div class="card">
+                <h2 style="color: var(--primary); margin-bottom: 1rem;">🔍 Konfirmasi & Validasi Soal</h2>
+                <p style="margin-bottom: 1rem; color: #555;">Review, edit kunci jawaban, atau perbaiki teks. Akurasi adalah prioritas.</p>
+                
+                <div id="preview-list"></div>
+
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="showScreen('screen-setup')">Kembali</button>
+                    <button class="btn btn-success" onclick="approveAndStart()">Setujui & Mulai Game 🎮</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCREEN 3: GAMEPLAY -->
+        <div id="screen-game" class="screen">
+            <div class="card">
+                <div class="game-header">
+                    <span id="game-player-name">Pemain: -</span>
+                    <span id="game-progress">Soal 1/5</span>
+                    <span id="game-score">Skor: 0</span>
+                </div>
+                
+                <div class="timer-bar">
+                    <div class="timer-fill" id="timer-fill"></div>
+                </div>
+
+                <div id="game-question" class="question-text">Memuat pertanyaan...</div>
+                
+                <div class="options-grid" id="game-options">
+                    <!-- Options injected here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- SCREEN 4: HASIL & LEADERBOARD -->
+        <div id="screen-result" class="screen">
+            <div class="card" style="text-align: center;">
+                <h1 style="color: var(--secondary); font-size: 3rem; margin-bottom: 1rem;">🏆 SELESAI!</h1>
+                <h2 id="result-name" style="color: var(--primary);">Nama Pemain</h2>
+                
+                <div style="display: flex; justify-content: space-around; margin: 2rem 0; background: var(--bg); padding: 1.5rem; border-radius: 10px;">
+                    <div>
+                        <h3 style="color: #666;">Skor Total</h3>
+                        <h2 id="result-score" style="color: var(--primary); font-size: 2rem;">0</h2>
+                    </div>
+                    <div>
+                        <h3 style="color: #666;">Akurasi</h3>
+                        <h2 id="result-accuracy" style="color: var(--success); font-size: 2rem;">0%</h2>
+                    </div>
+                </div>
+
+                <div style="text-align: left; margin-bottom: 2rem;">
+                    <h3 style="color: var(--accent);">Materi yang Perlu Dipelajari Kembali:</h3>
+                    <ul id="result-recommendation" style="margin-left: 1.5rem; margin-top: 0.5rem; color: #555;"></ul>
+                </div>
+
+                <h3 style="color: var(--primary); text-align: left; border-bottom: 2px solid #eee; padding-bottom: 0.5rem;">Klasemen Lokal (Leaderboard)</h3>
+                <table class="leaderboard-table" id="leaderboard-table">
+                    <thead><tr><th>Peringkat</th><th>Nama / Tim</th><th>Skor</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+
+                <div class="btn-group" style="justify-content: center; margin-top: 2rem;">
+                    <button class="btn btn-secondary" onclick="location.reload()">Ganti Materi / Main Ulang</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Feedback Modal -->
+    <div id="feedback-modal">
+        <div class="feedback-content">
+            <h2 id="feedback-title" style="font-size: 2rem; margin-bottom: 1rem;">Benar!</h2>
+            <p id="feedback-desc" style="margin-bottom: 1.5rem; color: #555;">Pembahasan...</p>
+            <button class="btn btn-primary" onclick="nextQuestion()">Lanjut ⏭</button>
+        </div>
+    </div>
+
+    <script>
+        // State Management
+        let appState = {
+            playerName: '', mode: 'individu', jenjang: 'SD', rawMaterial: '',
+            questions: [], currentQIndex: 0, score: 0, correctCount: 0,
+            timer: null, timeLeft: 15, failedTopics: []
+        };
+
+        const demoMaterials = {
+            1: "Sistem Tata Surya terdiri dari matahari sebagai pusat dan benda langit yang mengelilinginya. Planet terbesar di tata surya adalah Yupiter. Planet yang memiliki cincin yang terlihat paling jelas adalah Saturnus. Bumi adalah planet ketiga dari matahari dan satu-satunya yang diketahui memiliki kehidupan. Mars sering disebut planet merah karena kandungan oksida besi di permukaannya.",
+            2: "Fotosintesis adalah proses pembuatan makanan oleh tumbuhan hijau. Proses ini membutuhkan cahaya matahari, air, dan karbon dioksida. Klorofil adalah zat hijau daun yang berfungsi menangkap cahaya matahari. Hasil utama dari fotosintesis adalah glukosa (gula) dan oksigen. Oksigen dilepaskan ke udara dan sangat penting bagi pernapasan makhluk hidup."
+        };
+
+        // UI Helpers
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        // File Reader (TXT only)
+        document.getElementById('file-upload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            if (file.type !== "text/plain") {
+                alert("Peringatan: Versi tanpa backend ini hanya mendukung ekstraksi file .TXT. Format PDF/DOCX membutuhkan API Backend.");
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(e) { document.getElementById('setting-materi').value = e.target.result; };
+            reader.readAsText(file);
+        });
+
+        function loadDemoMateri(id) {
+            document.getElementById('setting-materi').value = demoMaterials[id];
+        }
+
+        // Logic Pembentukan Soal (Simulasi AI / Rule-based)
+        function generateQuestions() {
+            const text = document.getElementById('setting-materi').value.trim();
+            if (text.length < 50) { alert("Materi terlalu pendek! Masukkan materi yang memadai."); return; }
+            
+            appState.rawMaterial = text;
+            appState.playerName = document.getElementById('setting-player').value || 'Pemain 1';
+            appState.questions = simulateAIGeneration(text);
+            
+            renderPreview();
+            showScreen('screen-preview');
+        }
+
+        function simulateAIGeneration(text) {
+            // Jika menggunakan materi demo, berikan soal akurat terkalibrasi
+            if (text === demoMaterials[1]) {
+                return [
+                    { q: "Apa yang menjadi pusat dari Sistem Tata Surya berdasarkan teks?", opt: ["Bumi", "Matahari", "Yupiter", "Bulan"], ans: 1, exp: "Teks menyatakan: Sistem Tata Surya terdiri dari matahari sebagai pusat..." },
+                    { q: "Planet manakah yang merupakan planet terbesar?", opt: ["Saturnus", "Mars", "Bumi", "Yupiter"], ans: 3, exp: "Teks menyatakan: Planet terbesar di tata surya adalah Yupiter." },
+                    { q: "Mengapa Mars sering disebut sebagai planet merah?", opt: ["Karena sangat panas", "Kandungan oksida besi di permukaan", "Karena memantulkan cahaya matahari", "Dekat dengan Yupiter"], ans: 1, exp: "Teks menyatakan: Mars sering disebut planet merah karena kandungan oksida besi di permukaannya." }
+                ];
+            }
+            if (text === demoMaterials[2]) {
+                return [
+                    { q: "Apa fungsi utama klorofil pada proses fotosintesis?", opt: ["Menyerap air", "Menangkap cahaya matahari", "Menghasilkan oksigen", "Mengikat karbon dioksida"], ans: 1, exp: "Teks menyatakan: Klorofil adalah zat hijau daun yang berfungsi menangkap cahaya matahari." },
+                    { q: "Apa hasil utama dari proses fotosintesis?", opt: ["Air dan Mineral", "Karbon dioksida dan cahaya", "Glukosa dan oksigen", "Klorofil dan air"], ans: 2, exp: "Teks menyatakan: Hasil utama dari fotosintesis adalah glukosa (gula) dan oksigen." }
+                ];
+            }
+
+            // Fallback: Rule-based extraction sederhana untuk teks acak (karena tidak ada API)
+            let generated = [];
+            const sentences = text.split('. ').filter(s => s.length > 20);
+            
+            sentences.forEach((sentence, idx) => {
+                if (generated.length >= 5) return; // Batasi maks 5 untuk fallback
+                if (sentence.includes(" adalah ") || sentence.includes(" merupakan ")) {
+                    const parts = sentence.includes(" adalah ") ? sentence.split(" adalah ") : sentence.split(" merupakan ");
+                    if(parts.length === 2) {
+                        generated.push({
+                            q: "Menurut materi, apa yang dimaksud dengan " + parts[0].trim() + "?",
+                            opt: [parts[1].trim(), "Pilihan pengecoh 1", "Pilihan pengecoh 2", "Pilihan pengecoh 3"],
+                            ans: 0, // Dalam preview, guru akan mengacak ini
+                            exp: "Berdasarkan sumber: " + sentence
+                        });
+                    }
+                }
+            });
+
+            if (generated.length === 0) {
+                generated.push({
+                    q: "Apa inti pembahasan dari materi yang diberikan?",
+                    opt: ["Konsep A", "Konsep B", "Konsep C", "Sesuai materi (Edit oleh guru)"],
+                    ans: 3, exp: "Soal digenerate secara otomatis karena teks tidak mengandung definisi eksplisit."
+                });
+            }
+            return generated;
+        }
+
+        // Render Editor Guru
+        function renderPreview() {
+            const container = document.getElementById('preview-list');
+            container.innerHTML = '';
+            
+            appState.questions.forEach((item, index) => {
+                let html = `
+                <div class="q-preview" id="edit-q-${index}">
+                    <label>Soal ${index + 1}:</label>
+                    <input type="text" value="${item.q}" class="edit-q-text">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top:0.5rem;">
+                        <input type="text" value="${item.opt[0]}" class="edit-opt-0">
+                        <input type="text" value="${item.opt[1]}" class="edit-opt-1">
+                        <input type="text" value="${item.opt[2]}" class="edit-opt-2">
+                        <input type="text" value="${item.opt[3]}" class="edit-opt-3">
+                    </div>
+                    <select class="edit-ans">
+                        <option value="0" ${item.ans === 0 ? 'selected' : ''}>Kunci: Opsi 1 (Kiri Atas)</option>
+                        <option value="1" ${item.ans === 1 ? 'selected' : ''}>Kunci: Opsi 2 (Kanan Atas)</option>
+                        <option value="2" ${item.ans === 2 ? 'selected' : ''}>Kunci: Opsi 3 (Kiri Bawah)</option>
+                        <option value="3" ${item.ans === 3 ? 'selected' : ''}>Kunci: Opsi 4 (Kanan Bawah)</option>
+                    </select>
+                    <input type="text" value="${item.exp}" class="edit-exp" placeholder="Pembahasan (Wajib dari sumber)">
+                </div>`;
+                container.innerHTML += html;
+            });
+        }
+
+        // Simpan Hasil Edit Guru
+        function approveAndStart() {
+            const previews = document.querySelectorAll('.q-preview');
+            appState.questions = [];
+            
+            previews.forEach((node) => {
+                appState.questions.push({
+                    q: node.querySelector('.edit-q-text').value,
+                    opt: [
+                        node.querySelector('.edit-opt-0').value,
+                        node.querySelector('.edit-opt-1').value,
+                        node.querySelector('.edit-opt-2').value,
+                        node.querySelector('.edit-opt-3').value
+                    ],
+                    ans: parseInt(node.querySelector('.edit-ans').value),
+   
